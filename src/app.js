@@ -66,13 +66,29 @@ app.patch('/user', async(req, res) => {
     const userId = req.body.userId;
     const data = req.body;
     try{
-        const user = await User.findByIdAndUpdate({_id : userId}, data, {returnDocument: "after"});
+        const user = await User.findByIdAndUpdate({_id : userId}, data, {
+            returnDocument: "after", 
+            runValidators: true
+        });
         console.log(user);
         res.send("User updated successfully");
     }catch(err){
-        res.status(404).send("Something went wrong!");
+        res.status(404).send("UPDATE Failed: "+err.message);
     }
 })
+
+//UPDATE data of user using emailId instead of _id
+// app.patch('/user', async (req, res) => {
+//     const emailId = req.body.emailId;
+//     const data = req.body;
+//     try{
+//         const user = await User.findOneAndUpdate({emailId : emailId}, data, {returnDocument: "after"});
+//         console.log(user);
+//         res.send("User updated successfully");
+//     }catch(err){
+//         res.status(404).send("Something went wrong!");
+//     }
+// }) 
 
 connectDB().then(() => {
     console.log("Database connected successfully!");
