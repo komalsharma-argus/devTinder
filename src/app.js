@@ -1,23 +1,37 @@
+//crypto NodeJS module is required as MongoDB relies on the global crypto API. NodeJS v18 does not support it inherently.
+if (!globalThis.crypto) {
+    globalThis.crypto = require('crypto');
+}
+
 const express = require("express");
 const app = express();
+const User = require('./models/user');
 
-const {adminAuth, userAuth} = require("./middlewares/auth");
+const connectDB = require("./config/database");
+const { log } = require('console');
 
-//Middlewares to handle admin auth for all GET, POST, PUT, PATCH & DELETE
-app.use("/admin", adminAuth);
+app.post('/signup', async(req, res) => {
+    //Creating a new instance of User model
+    const user = new User({
+        firstName: 'Komal',
+        lastname: 'Sharma',
+        emailId: 'komal@yahoo.com',
+        password: 'Komal@abc'
+    });
 
-app.get("/user/login", (req, res) => {
-    res.send("User logged in successfully");
+    try{
+        await user.save();
+        res.send("User added successfully!!");  
+    }catch(err){
+        res.status(400).send("ERror saving the user: "+ err.message);
+    }
 });
 
-app.get("/user/data", userAuth, (req, res) => {
-    res.send("users data sent");
-});
-
-app.get("/admin/getAllData", (req, res) => {
-    res.send("All data sent");
-});
-
-app.listen(3000, () => {
-    console.log("Listening on port 3000");
+connectDB().then(() => {
+    console.log("Database connected successfully!");
+    app.listen(3000, () => {
+        console.log("Server listening on port 3000......")
+    });
+}).catch((err) => {
+    console.log("Database cannot be connected!!");
 });
