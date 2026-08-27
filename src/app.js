@@ -4,23 +4,37 @@ if (!globalThis.crypto) {
 }
 
 const express = require("express");
+const bcrypt = require("bcrypt");
 const app = express();
 const User = require('./models/user');
 
 const connectDB = require("./config/database");
-const { log } = require('console');
+const validateSignUpData = require("./utils/validation");
 
 app.use(express.json());
 
 app.post('/signup', async(req, res) => {
+    //Validate the data 
+    validateSignUpData(req);
+
+    const {firstName, lastName, emailId, password} = req.body;
+
+    //Encrypt the password 
+    const passwordHash = await bcrypt.hash(password, 10);
+
     //Creating a new instance of User model
-    const user = new User(req.body);
+    const user = new User({
+        firstName,
+        lastName,
+        emailId,
+        password: passwordHash
+    });
 
     try{
         await user.save();
         res.send("User added successfully!!");  
     }catch(err){
-        res.status(400).send("ERror saving the user: "+ err.message);
+        res.status(400).send("ERROR : " + err.message);
     }
 });
 
@@ -46,7 +60,7 @@ app.get('/feed', async(req, res) => {
         const users = await User.find({});
         res.send(users);
     }catch(err){
-        res.status(404).send("SOmething went wrong!");
+        res.status(404).send("Something went wrong!");
     }
 })
 

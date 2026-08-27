@@ -10,7 +10,10 @@ const userSchema = new Schema({
         maxLength: 50
     },
     lastName: {
-        type: String
+        type: String,
+        required: true,
+        minLength: 3,
+        maxLength: 50
     },
     emailId: {
         type: String,
