@@ -6,17 +6,19 @@ if (!globalThis.crypto) {
 const express = require("express");
 const bcrypt = require("bcrypt");
 const app = express();
+const validator = require("validator");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const User = require('./models/user');
 
 const connectDB = require("./config/database");
-const validateSignUpData = require("./utils/validation");
+const {validateSignUpData} = require("./utils/validation");
 
 app.use(express.json());
-
+app.use(cookieParser());
 app.post('/signup', async(req, res) => {
     //Validate the data 
     validateSignUpData(req);
-
     const {firstName, lastName, emailId, password} = req.body;
 
     //Encrypt the password 
@@ -39,7 +41,7 @@ app.post('/signup', async(req, res) => {
 });
 
 //POST - /login API
-app.post('/login', (req, res) => {
+app.post('/login', async(req, res) => {
     try{
         const {emailId, password} = req.body;
 
@@ -54,14 +56,42 @@ app.post('/login', (req, res) => {
         const isPasswordValid = bcrypt.compare(password, user.password);
 
         if(isPasswordValid){
+            //Create a JWT token
+            const token = await jwt.sign({_id: user._id}, "DEV@Tinder$790");
+
+            //Add JWT token to cookie and send response back to the user
+            res.cookie("token", token);
             res.send("Login Successfull!!");
         }else{
-            res.send("INvalid credentials");
+            res.send("Invalid credentials");
         }
     }catch(err){
         res.status(400).send("ERROR : " + err.message);
     }
 });
+
+//GET profile 
+app.get("/profile", async(req, res) => {
+    try{
+        const cookies = req.cookies;
+        const { token } = cookies;
+
+        if(!token){
+            throw new Error("Invalid user token");
+        }
+
+        const decodedMessage = await jwt.verify(token, "DEV@Tinder$790");
+        const { _id } = decodedMessage;
+        const user = await User.findById(_id);
+
+        if(!user){
+            throw new Error("User not found");
+        }
+        res.send(user);
+    }catch(err){
+        res.status(400).send("ERROR : " + err.message);
+    }
+})
 
 //GET user by email
 app.get('/user', async(req, res) => {
