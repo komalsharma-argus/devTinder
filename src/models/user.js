@@ -64,7 +64,8 @@ const userSchema = new Schema({
         default: "This is a default about of the user"
     },
     skills: {
-        type: [String]
+        type: [String],
+        maxLength: 10
     }
 },
 {
