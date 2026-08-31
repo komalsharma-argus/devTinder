@@ -58,7 +58,7 @@ app.post('/login', async(req, res) => {
 
         if(isPasswordValid){
             //Create a JWT token
-            const token = user.getJWT();
+            const token = await user.getJWT();
 
             //Add JWT token to cookie and send response back to the user
             res.cookie("token", token, {expires: new Date(Date.now() + 8 * 3600000)});
@@ -85,83 +85,6 @@ app.post("/sendConnectionRequest", userAuth, (req, res) => {
     const user = req.user;
     console.log("Sending a connection request");
 });
-
-//GET user by email
-app.get('/user', async(req, res) => {
-    const userEmail = req.body.emailId;
-
-    try{
-        const users = await User.findOne({emailId: userEmail});
-        if(users.length === 0){
-            res.status(404).send("User Not Found!!");
-        }else{
-            res.send(users);
-        }
-    }catch(err){
-        res.status(404).send("Something went wrong!!");
-    }
-});
-
-//FEED API -GET all users from the db
-app.get('/feed', async(req, res) => {
-    try{
-        const users = await User.find({});
-        res.send(users);
-    }catch(err){
-        res.status(404).send("Something went wrong!");
-    }
-})
-
-//DELETE API - Delete one user by id from db
-app.delete('/user', async(req, res) => {
-    const userId = req.body.userId;
-    try{
-        const user = await User.findByIdAndDelete(userId);
-        res.send("User deleted successfully");
-    }catch(err){
-        res.status(404).send("Something went wrong!");
-    }
-})
-
-//UPDATE data of the user
-app.patch('/user/:userId', async(req, res) => {
-    const userId = req.params?.userId;
-    const data = req.body;
-    try{
-        const ALLOWED_UPDATES = ["age", "gender", "photoUrl", "about", "skills"];
-        const isUpdateAllowed = Object.keys(data).every(key => {ALLOWED_UPDATES.includes(key)});
-
-        if(!isUpdateAllowed){
-            throw new Error("Update not allowed");
-        }
-
-        if(data?.skills.length > 10){
-            throw new Error("Skills cannot be more than 10");
-        }
-
-        const user = await User.findByIdAndUpdate({_id : userId}, data, {
-            returnDocument: "after", 
-            runValidators: true
-        });
-        console.log(user);
-        res.send("User updated successfully");
-    }catch(err){
-        res.status(404).send("UPDATE Failed: " + err.message);
-    }
-})
-
-//UPDATE data of user using emailId instead of _id
-// app.patch('/user', async (req, res) => {
-//     const emailId = req.body.emailId;
-//     const data = req.body;
-//     try{
-//         const user = await User.findOneAndUpdate({emailId : emailId}, data, {returnDocument: "after"});
-//         console.log(user);
-//         res.send("User updated successfully");
-//     }catch(err){
-//         res.status(404).send("Something went wrong!");
-//     }
-// }) 
 
 connectDB().then(() => {
     console.log("Database connected successfully!");
