@@ -8,6 +8,8 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 
+require('dotenv').config();
+
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
