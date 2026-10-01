@@ -18,7 +18,7 @@ const validateSignUpData = (req) => {
 
 const validateEditProfileData = (req) => {
     const allowedEditFields = [
-        "lastName", "age", "gender", "photoUrl", "about", "skills"
+        "firstName", "lastName", "age", "gender", "photoUrl", "about", "skills"
     ];
 
     const isEditAllowed = Object.keys(req.body).every((field) => allowedEditFields.includes(field));
@@ -27,9 +27,12 @@ const validateEditProfileData = (req) => {
         throw new Error("The specified fields cannot be edited");
     }
 
-    const {lastName, photoUrl, gender, age, skills } = req.body;
-    if(lastName && !(lastName.length > 2 && lastName.length < 50)){
+    const {firstName, lastName, photoUrl, gender, age, skills } = req.body;
+    if(firstName && !(firstName.length > 2 && firstName.length < 50)){
         throw new Error("Firstname is not valid. Should be between 3-50 characters")
+    }
+    if(lastName && !(lastName.length > 2 && lastName.length < 50)){
+        throw new Error("Lastname is not valid. Should be between 3-50 characters")
     }
     if(age && !validator.isInt(String(age), {min: 16})){
         throw new Error("Enter a valid age!");
