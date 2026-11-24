@@ -2,13 +2,14 @@
 if (!globalThis.crypto) {
     globalThis.crypto = require('crypto');
 }
-
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 
 require('dotenv').config();
+
+app.set("trust proxy", 1);
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
@@ -19,10 +20,11 @@ const cors = require("cors");
 
 app.use(
     cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -35,7 +37,7 @@ app.use("/", paymentRouter);
 connectDB().then(() => {
     console.log("Database connected successfully!");
     app.listen(3000, () => {
-        console.log("Server listening on port 3000......")
+        console.log("Server listening on port......")
     });
 }).catch((err) => {
     console.log("Database cannot be connected!!");
