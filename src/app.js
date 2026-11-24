@@ -2,7 +2,7 @@
 if (!globalThis.crypto) {
     globalThis.crypto = require('crypto');
 }
-
+app.set("trust proxy", 1);
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
@@ -18,10 +18,16 @@ const cors = require("cors");
 
 app.use(
     cors({
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
     })
 );
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  expires: new Date(Date.now() + 8 * 3600000),
+});
 app.use(express.json());
 app.use(cookieParser());
 
