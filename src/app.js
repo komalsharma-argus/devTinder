@@ -23,12 +23,7 @@ app.use(
     credentials: true,
     })
 );
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,
-  sameSite: "none",
-  expires: new Date(Date.now() + 8 * 3600000),
-});
+
 app.use(express.json());
 app.use(cookieParser());
 

@@ -27,7 +27,12 @@ authRouter.post('/signup', async(req, res) => {
         const savedUser = await user.save();
         const token = await savedUser.getJWT();
 
-        res.cookie("token", token, {expires: new Date(Date.now() + 8 * 3600000)});
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            expires: new Date(Date.now() + 8 * 3600000),
+        });
         return res.json({message: "User added successfully!", data: savedUser});  
     }catch(err){
         return res.status(400).send("ERROR : " + err.message);
@@ -54,7 +59,12 @@ authRouter.post('/login', async(req, res) => {
             const token = await user.getJWT();
 
             //Add JWT token to cookie and send response back to the user
-            res.cookie("token", token, {expires: new Date(Date.now() + 8 * 3600000)});
+            res.cookie("token", token, {
+                httpOnly: true,
+                secure: true,
+                sameSite: "none",
+                expires: new Date(Date.now() + 8 * 3600000),
+            });
             return res.send(user);
         }else{
             return res.status(401).send("Invalid credentials");
