@@ -2,13 +2,14 @@
 if (!globalThis.crypto) {
     globalThis.crypto = require('crypto');
 }
-app.set("trust proxy", 1);
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/database");
 
 require('dotenv').config();
+
+app.set("trust proxy", 1);
 
 const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
